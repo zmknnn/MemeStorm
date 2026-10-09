@@ -1,0 +1,48 @@
+
+name: Build MemeStorm for macOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "meme_storm.py"
+      - "memes/**"
+      - ".github/workflows/build-macos.yml"
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install pillow pyinstaller
+
+      - name: Build application
+        run: |
+          python -m PyInstaller \
+            --noconfirm \
+            --clean \
+            --windowed \
+            --onedir \
+            --name MemeStorm \
+            --add-data "memes:memes" \
+            meme_storm.py
+
+      - name: Package macOS application
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            dist/MemeStorm.app MemeStorm-macOS.zip
+
+      - name: Upload application
+        uses: actions/upload-artifact@v4
+        with:
+          name: MemeStorm-macOS
+          path: MemeStorm-macOS.zip
