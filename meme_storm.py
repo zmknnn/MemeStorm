@@ -6,7 +6,7 @@ from PIL import Image, ImageTk, ImageOps, ImageDraw, ImageFont
 
 SECRET_CODE = "67"
 MAX_WINDOWS = 1000
-INTERVAL_MS = 500
+INTERVAL_MS = 200
 IMAGE_SIZE = (440, 340)
 
 if getattr(sys, "frozen", False):
