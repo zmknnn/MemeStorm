@@ -20,7 +20,6 @@ IMAGE_EXTENSIONS = {
     ".jpg", ".jpeg", ".jfif", ".png", ".gif", ".webp"
 }
 
-# Кольорова гама
 C_BG = "#090d16"
 C_SURFACE = "#131b2e"
 C_SURFACE_HOVER = "#1c2640"
@@ -196,7 +195,7 @@ def show_meme():
     win.title(f"MemeStorm #{created + 1}")
     win.configure(bg=accent)
     win.resizable(False, False)
-    
+
     win.attributes("-topmost", True)
 
     image_label = tk.Label(
@@ -236,7 +235,6 @@ def show_meme():
     root.after(INTERVAL_MS, show_meme)
 
 
-# Головне вікно
 root = tk.Tk()
 root.title("MemeStorm")
 root.geometry("400x460")
@@ -246,18 +244,17 @@ root.resizable(False, False)
 root.attributes("-topmost", True)
 root.protocol("WM_DELETE_WINDOW", lambda: None)
 
-# Функція для постійної підтримки головного вікна поверх усіх мемів
+
 def keep_root_on_top():
     if not stopped and root.winfo_exists():
         root.lift()
         root.attributes("-topmost", True)
         root.after(200, keep_root_on_top)
 
-# Інтерфейс головного вікна
+
 main = tk.Frame(root, bg=C_BG)
 main.pack(fill="both", expand=True, padx=28, pady=24)
 
-# Хедер
 header_frame = tk.Frame(main, bg=C_BG)
 header_frame.pack(fill="x", pady=(0, 20))
 
@@ -279,7 +276,6 @@ tk.Label(
     anchor="center"
 ).pack(fill="x", pady=(4, 0))
 
-# Картка поля вводу
 entry_card = tk.Frame(
     main,
     bg=C_SURFACE,
@@ -320,16 +316,18 @@ code_entry = tk.Entry(
 code_entry.pack(fill="x", ipady=8, padx=8)
 code_entry.bind("<Return>", check_code)
 
+
 def on_focus_in(e):
     entry_wrapper.config(highlightbackground=C_BORDER_FOCUS)
+
 
 def on_focus_out(e):
     entry_wrapper.config(highlightbackground=C_BORDER)
 
+
 code_entry.bind("<FocusIn>", on_focus_in)
 code_entry.bind("<FocusOut>", on_focus_out)
 
-# Кнопка зупинки
 btn_stop = tk.Label(
     main,
     text="ЗУПИНИТИ АТАКУ",
@@ -341,11 +339,16 @@ btn_stop = tk.Label(
 )
 btn_stop.pack(fill="x", pady=(0, 10))
 
-btn_stop.bind("<Enter>", lambda e: btn_stop.configure(bg=C_PURPLE_HOVER))
-btn_stop.bind("<Leave>", lambda e: btn_stop.configure(bg=C_PURPLE))
+btn_stop.bind(
+    "<Enter>",
+    lambda e: btn_stop.configure(bg=C_PURPLE_HOVER)
+)
+btn_stop.bind(
+    "<Leave>",
+    lambda e: btn_stop.configure(bg=C_PURPLE)
+)
 btn_stop.bind("<Button-1>", lambda e: check_code())
 
-# Кнопка закриття — спочатку прихована
 btn_close = tk.Label(
     main,
     text="ЗАКРИТИ ПРОГРАМУ",
@@ -356,11 +359,19 @@ btn_close = tk.Label(
     cursor="hand2"
 )
 
-btn_close.bind("<Enter>", lambda e: btn_close.configure(bg=C_PURPLE_HOVER))
-btn_close.bind("<Leave>", lambda e: btn_close.configure(bg=C_PURPLE))
-btn_close.bind("<Button-1>", lambda e: close_app())
+btn_close.bind(
+    "<Enter>",
+    lambda e: btn_close.configure(bg=C_PURPLE_HOVER)
+)
+btn_close.bind(
+    "<Leave>",
+    lambda e: btn_close.configure(bg=C_PURPLE)
+)
+btn_close.bind(
+    "<Button-1>",
+    lambda e: close_app()
+)
 
-# Футер та статус
 status_frame = tk.Frame(main, bg=C_BG)
 status_frame.pack(side="bottom", fill="x")
 
@@ -382,7 +393,6 @@ status_text = tk.Label(
 )
 status_text.pack(side="left")
 
-# Запуск таймерів та головного циклу програми
 root.after(500, show_meme)
 root.after(200, keep_root_on_top)
 root.mainloop()
