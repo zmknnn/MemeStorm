@@ -4,9 +4,9 @@ from pathlib import Path
 import sys
 from PIL import Image, ImageTk, ImageOps, ImageDraw, ImageFont
 
-SECRET_CODE = "STOP-MEME-67"
+SECRET_CODE = "67"
 MAX_WINDOWS = 1000
-INTERVAL_MS = 200
+INTERVAL_MS = 500
 IMAGE_SIZE = (440, 340)
 
 if getattr(sys, "frozen", False):
@@ -75,24 +75,27 @@ def stop_demo():
         close_one(win)
 
     windows.clear()
+
     status_dot.config(fg="#38bdf8")
     status_text.config(
         text="Зупинено",
         fg="#38bdf8"
     )
 
+    btn_close.pack(fill="x", pady=(0, 10))
+
 
 def close_app():
-    stop_demo()
-    root.destroy()
+    if stopped:
+        root.destroy()
 
 
 def check_code(event=None):
     entered = code_entry.get().strip().upper()
 
     if entered == SECRET_CODE:
-        stop_demo()
         code_entry.delete(0, tk.END)
+        stop_demo()
     else:
         status_dot.config(fg="#f43f5e")
         status_text.config(
@@ -193,6 +196,8 @@ def show_meme():
     win.title(f"MemeStorm #{created + 1}")
     win.configure(bg=accent)
     win.resizable(False, False)
+    
+    win.attributes("-topmost", True)
 
     image_label = tk.Label(
         win,
@@ -205,7 +210,6 @@ def show_meme():
     image_label.pack(padx=4, pady=4)
 
     win.protocol("WM_DELETE_WINDOW", lambda: None)
-
     win.update_idletasks()
 
     window_width = win.winfo_width()
@@ -232,14 +236,24 @@ def show_meme():
     root.after(INTERVAL_MS, show_meme)
 
 
+# Головне вікно
 root = tk.Tk()
 root.title("MemeStorm")
 root.geometry("400x460")
 root.configure(bg=C_BG)
 root.resizable(False, False)
 
+root.attributes("-topmost", True)
 root.protocol("WM_DELETE_WINDOW", lambda: None)
 
+# Функція для постійної підтримки головного вікна поверх усіх мемів
+def keep_root_on_top():
+    if not stopped and root.winfo_exists():
+        root.lift()
+        root.attributes("-topmost", True)
+        root.after(200, keep_root_on_top)
+
+# Інтерфейс головного вікна
 main = tk.Frame(root, bg=C_BG)
 main.pack(fill="both", expand=True, padx=28, pady=24)
 
@@ -264,7 +278,6 @@ tk.Label(
     fg=C_TEXT_MUTED,
     anchor="center"
 ).pack(fill="x", pady=(4, 0))
-
 
 # Картка поля вводу
 entry_card = tk.Frame(
@@ -316,7 +329,7 @@ def on_focus_out(e):
 code_entry.bind("<FocusIn>", on_focus_in)
 code_entry.bind("<FocusOut>", on_focus_out)
 
-# Кнопка Зупинити
+# Кнопка зупинки
 btn_stop = tk.Label(
     main,
     text="ЗУПИНИТИ АТАКУ",
@@ -332,20 +345,19 @@ btn_stop.bind("<Enter>", lambda e: btn_stop.configure(bg=C_PURPLE_HOVER))
 btn_stop.bind("<Leave>", lambda e: btn_stop.configure(bg=C_PURPLE))
 btn_stop.bind("<Button-1>", lambda e: check_code())
 
-# Кнопка Завершити
+# Кнопка закриття — спочатку прихована
 btn_close = tk.Label(
     main,
-    text="Закрити програму",
-    font=("Segoe UI", 10),
-    bg=C_SURFACE,
-    fg=C_TEXT_SUB,
-    pady=10,
+    text="ЗАКРИТИ ПРОГРАМУ",
+    font=("Segoe UI", 10, "bold"),
+    bg=C_PURPLE,
+    fg=C_TEXT_MAIN,
+    pady=11,
     cursor="hand2"
 )
-btn_close.pack(fill="x", pady=(0, 20))
 
-btn_close.bind("<Enter>", lambda e: btn_close.configure(bg=C_SURFACE_HOVER, fg=C_TEXT_MAIN))
-btn_close.bind("<Leave>", lambda e: btn_close.configure(bg=C_SURFACE, fg=C_TEXT_SUB))
+btn_close.bind("<Enter>", lambda e: btn_close.configure(bg=C_PURPLE_HOVER))
+btn_close.bind("<Leave>", lambda e: btn_close.configure(bg=C_PURPLE))
 btn_close.bind("<Button-1>", lambda e: close_app())
 
 # Футер та статус
@@ -370,5 +382,7 @@ status_text = tk.Label(
 )
 status_text.pack(side="left")
 
+# Запуск таймерів та головного циклу програми
 root.after(500, show_meme)
+root.after(200, keep_root_on_top)
 root.mainloop()
